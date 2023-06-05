@@ -1,10 +1,11 @@
 const express = require("express");
 const http = require("http");
-const socketIO = require("socket.io");
+const cors = require("cors");
+const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server, {
+const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
@@ -36,6 +37,9 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
+
+// Enable CORS for all routes
+app.use(cors());
 
 // Start the server
 const port = process.env.PORT || 5000;
