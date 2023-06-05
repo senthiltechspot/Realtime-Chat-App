@@ -1,23 +1,19 @@
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
-// const cors = require("cors");
 
 const app = express();
-// app.use(cors()); // Enable CORS for all routes
-
 const server = http.createServer(app);
-// const io = socketIO(server);
-
-// Store messages in memory
-const messages = [];
 const io = socketIO(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
-    credentials: true,
-  },
+    credentials: true
+  }
 });
+
+// Store messages in memory
+const messages = [];
 
 // Define socket.io event listeners
 io.on("connection", (socket) => {
