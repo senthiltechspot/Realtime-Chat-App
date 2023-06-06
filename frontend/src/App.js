@@ -15,7 +15,7 @@ import {
 import { styled, ThemeProvider } from "@mui/system";
 import { createTheme } from "@mui/material/styles";
 
-const socket = io("http://localhost:5000");
+const socket = io(process.env.REACT_APP_API);
 
 const ChatContainer = styled(Container)({
   display: "flex",
@@ -46,7 +46,6 @@ const MessageItem = styled(ListItem)(({ isCurrentUser }) => ({
   justifyContent: isCurrentUser ? "flex-end" : "flex-start",
   marginLeft: isCurrentUser ? "auto" : 1,
   maxWidth: "75%",
-
 }));
 
 const MessageText = styled(ListItemText)(({ isCurrentUser }) => ({
