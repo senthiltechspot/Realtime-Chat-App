@@ -9,9 +9,12 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
+
+// Store users in memory
+const users = {};
 
 // Store messages in memory
 const messages = [];
@@ -27,14 +30,23 @@ io.on("connection", (socket) => {
   socket.on("message", (message) => {
     console.log("New message:", message);
     // Add message to the array
-    messages.push({ message });
+    messages.push({ message, userId: socket.id, userName: users[socket.id] });
     // Emit the updated messages to all connected clients
-    io.emit("message", message);
+    io.emit("message", { message, userId: socket.id, userName: users[socket.id] });
+  });
+
+  // Handle user registration
+  socket.on("register", (userName) => {
+    console.log("User registered:", userName);
+    // Store the user's name with their ID
+    users[socket.id] = userName;
   });
 
   // Handle disconnection
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    // Remove the user from the users object
+    delete users[socket.id];
   });
 });
 
