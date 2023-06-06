@@ -37,26 +37,28 @@ const MessagesContainer = styled(Paper)(({ theme }) => ({
   flexGrow: 1,
   overflow: "auto",
   marginBottom: theme.spacing(2),
+  backgroundColor: "#D0F0C0",
 }));
 
 const MessageItem = styled(ListItem)(({ isCurrentUser }) => ({
-  marginBottom: theme.spacing(1),
   display: "flex",
+  width: "fit-content",
   justifyContent: isCurrentUser ? "flex-end" : "flex-start",
+  marginLeft: isCurrentUser ? "auto" : 1,
+  maxWidth: "75%",
+
 }));
 
 const MessageText = styled(ListItemText)(({ isCurrentUser }) => ({
   wordBreak: "break-word",
-  backgroundColor: isCurrentUser
-    ? theme.palette.primary.main
-    : theme.palette.secondary.main,
-  color: theme.palette.getContrastText(
-    isCurrentUser ? theme.palette.primary.main : theme.palette.secondary.main
-  ),
-  borderRadius: "10px",
-  padding: theme.spacing(1),
+  padding: "8px 12px",
+  borderRadius: isCurrentUser ? "10px 0 10px 10px" : "0 10px 10px 10px",
+  backgroundColor: isCurrentUser ? "#F4D03F" : "#FF3CAC",
+  backgroundImage: isCurrentUser
+    ? "linear-gradient(132deg, #F4D03F 0%, #16A085 100%)"
+    : " linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%)",
+  color: "white",
 }));
-
 
 const theme = createTheme();
 
@@ -68,8 +70,12 @@ function App() {
 
   const register = (e) => {
     e.preventDefault();
-    socket.emit("register", userName);
-    setIsRegistered(true);
+    if (userName.trim() !== "") {
+      setIsRegistered(true);
+      socket.emit("register", userName);
+    } else {
+      alert("Enter Username");
+    }
   };
 
   useEffect(() => {
@@ -104,8 +110,14 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <ChatContainer>
-        {!isRegistered ? (
+      <ChatContainer
+        sx={{
+          backgroundColor: "#85FFBD",
+          backgroundImage: "linear-gradient(45deg, #85FFBD 0%, #FFFB7D 100%)",
+        }}
+      >
+        {!isRegistered &&
+        (userName !== "" || userName !== null || userName !== undefined) ? (
           <ChatBox>
             <Typography variant="h5" component="h2" align="center" gutterBottom>
               Register
@@ -148,6 +160,7 @@ function App() {
                     isCurrentUser={msg.userId === socket.id}
                   >
                     <MessageText
+                      sx={{ color: "white" }}
                       primary={msg.userName === userName ? "You" : msg.userName}
                       secondary={msg.message}
                       isCurrentUser={msg.userId === socket.id}
