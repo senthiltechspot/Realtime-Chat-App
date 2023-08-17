@@ -98,7 +98,7 @@ function App() {
     };
   }, []);
   const handleExistingMessage = (items) => {
-    setMessages((prevMessages) => [...prevMessages, ...items]);
+    setMessages([...items]);
   };
   const handleIncomingMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
