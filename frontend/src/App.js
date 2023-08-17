@@ -11,9 +11,11 @@ import {
   ListItem,
   ListItemText,
   Grid,
+  Chip,
 } from "@mui/material";
 import { styled, ThemeProvider } from "@mui/system";
 import { createTheme } from "@mui/material/styles";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const socket = io(process.env.REACT_APP_API);
 
@@ -64,30 +66,44 @@ const theme = createTheme();
 function App() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [activeUsers, setActiveUsers] = useState([]);
   const [userName, setUserName] = useState("");
   const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationError, setRegistrationError] = useState("");
 
-  const register = (e) => {
+  const register = async (e) => {
     e.preventDefault();
     if (userName.trim() !== "") {
-      setIsRegistered(true);
-      socket.emit("register", userName);
+      await socket.emit("register", userName, (response) => {
+        if (response.success) {
+          socket.on("messages", handleExistingMessage);
+          setIsRegistered(true);
+          setRegistrationError("");
+        } else {
+          setRegistrationError(response.message);
+        }
+      });
     } else {
-      alert("Enter Username");
+      setRegistrationError("Enter a valid Username");
     }
   };
 
   useEffect(() => {
     socket.on("message", handleIncomingMessage);
+    socket.on("activeUsers", handleActiveUsers);
 
     return () => {
       socket.off("message", handleIncomingMessage);
     };
   }, []);
-
+  const handleExistingMessage = (items) => {
+    setMessages((prevMessages) => [...prevMessages, message]);
+  };
   const handleIncomingMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
-    console.log(message);
+  };
+  const handleActiveUsers = (users) => {
+    setActiveUsers(users);
   };
 
   const handleSendMessage = (e) => {
@@ -115,6 +131,35 @@ function App() {
           backgroundImage: "linear-gradient(45deg, #85FFBD 0%, #FFFB7D 100%)",
         }}
       >
+        <Typography variant="h6" component="h6" align="center" gutterBottom>
+          Active Users :
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "4px",
+          }}
+        >
+          {activeUsers.length > 0 ? (
+            activeUsers.map((user, i) => (
+              <Chip
+                key={i}
+                icon={<AccountCircleIcon />}
+                color="success"
+                label={user}
+              />
+            ))
+          ) : (
+            <Chip
+              icon={<AccountCircleIcon />}
+              // color="success"
+
+              label="No Active Users"
+            />
+          )}
+        </Box>
         {!isRegistered &&
         (userName !== "" || userName !== null || userName !== undefined) ? (
           <ChatBox>
@@ -143,6 +188,11 @@ function App() {
                   </Button>
                 </Grid>
               </Grid>
+              {registrationError && (
+                <Typography color="error" align="center">
+                  {registrationError}
+                </Typography>
+              )}
             </form>
           </ChatBox>
         ) : (
@@ -181,6 +231,7 @@ function App() {
                     fullWidth
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Enter Message"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4} md={2} lg={2}>
