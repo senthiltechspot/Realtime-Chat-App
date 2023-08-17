@@ -76,7 +76,7 @@ function App() {
     if (userName.trim() !== "") {
       await socket.emit("register", userName, (response) => {
         if (response.success) {
-          socket.on("messages", handleExistingMessage);
+          // await socket.on("Allmessages", handleExistingMessage);
           setIsRegistered(true);
           setRegistrationError("");
         } else {
@@ -91,13 +91,14 @@ function App() {
   useEffect(() => {
     socket.on("message", handleIncomingMessage);
     socket.on("activeUsers", handleActiveUsers);
+    socket.on("Allmessages", handleExistingMessage);
 
     return () => {
       socket.off("message", handleIncomingMessage);
     };
   }, []);
   const handleExistingMessage = (items) => {
-    setMessages((prevMessages) => [...prevMessages, message]);
+    setMessages((prevMessages) => [...prevMessages, ...items]);
   };
   const handleIncomingMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, message]);

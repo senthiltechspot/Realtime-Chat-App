@@ -23,6 +23,7 @@ const messages = [];
 function emitActiveUsers() {
   const activeUserNames = Object.values(registeredUsernames);
   io.emit("activeUsers", activeUserNames);
+  io.emit("Allmessages", messages)
 }
 
 // Define socket.io event listeners
